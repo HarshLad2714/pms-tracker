@@ -4,6 +4,40 @@ Internal project / task OS: Kanban, QA bugs, attendance, and task-wise time trac
 
 **Stack:** Node.js + Express + MongoDB · React + Vite + Tailwind
 
+## Screenshots
+
+### Sign in
+
+![FORGE login](docs/screenshots/01-login.png)
+
+### Studio dashboard
+
+![Studio dashboard](docs/screenshots/02-studio.png)
+
+### Kanban board
+
+![Kanban board](docs/screenshots/03-board.png)
+
+### Projects
+
+![Projects table](docs/screenshots/04-projects.png)
+
+### Attendance
+
+![Attendance table](docs/screenshots/05-attendance.png)
+
+### Reports
+
+![Reports](docs/screenshots/06-reports.png)
+
+### People
+
+![People table](docs/screenshots/07-people.png)
+
+### Bugs
+
+![Bugs table](docs/screenshots/08-bugs.png)
+
 ## Quick start
 
 1. Install [MongoDB](https://www.mongodb.com/docs/manual/installation/) and start it locally.
