@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: #14110d;
+  color: #f3ead8;
+  font-family: Outfit, system-ui, sans-serif;
+}
+
+.grain {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.18'/%3E%3C/svg%3E");
+}
+
+.panel {
+  @apply rounded-2xl border border-ink-600/80 bg-ink-800/80;
+}
+
+.btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition;
+}
+
+.btn-copper {
+  @apply btn bg-copper-500 text-ink-950 hover:bg-copper-400;
+}
+
+.btn-ghost {
+  @apply btn border border-ink-600 text-paper-100 hover:border-brass/60 hover:text-brass;
+}
+
+.field {
+  @apply w-full rounded-xl border border-ink-600 bg-ink-900 px-3 py-2.5 text-sm text-paper-50 outline-none placeholder:text-paper-200/40 focus:border-copper-500;
+}
+
+.toolbar .field {
+  width: auto;
+  min-width: 9rem;
+}
+
+.label {
+  @apply mb-1.5 block text-[11px] uppercase tracking-[0.18em] text-paper-200/60;
+}
+
+.chip {
+  @apply inline-flex items-center rounded-full px-2 py-0.5 text-[11px] uppercase tracking-wider;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: #3d3428;
+  border-radius: 99px;
+}
