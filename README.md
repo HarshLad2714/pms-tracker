@@ -74,6 +74,44 @@ cd frontend && npm run dev
 
 Open [http://localhost:5180](http://localhost:5180). API runs on port **5060**.
 
+## Docker (optional)
+
+Needs [Docker Desktop](https://docs.docker.com/get-docker/) (or Docker Engine + Compose). This starts MongoDB, the API, and the web app.
+
+```bash
+docker compose up --build
+```
+
+Or: `npm run docker:up`
+
+Then open [http://localhost:5180](http://localhost:5180). First boot runs migrations and seeds demo users if the database is empty.
+
+| Service | Port |
+|---|---|
+| Web | 5180 |
+| API | 5060 |
+| MongoDB | 27017 |
+
+Useful commands:
+
+```bash
+# background
+docker compose up --build -d
+
+# only Mongo (keep using local npm run dev)
+docker compose up -d mongo
+
+# stop containers (data stays)
+docker compose down
+
+# wipe database + uploads
+docker compose down -v
+```
+
+If port **27017** is already used by a local Mongo, stop that process or change the mongo port in `docker-compose.yml`.
+
+To skip seeding: `SEED_ON_START=false docker compose up --build`
+
 ## Demo accounts
 
 | Role | Email | Password |

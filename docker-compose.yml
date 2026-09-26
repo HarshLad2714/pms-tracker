@@ -1,0 +1,52 @@
+name: forge
+
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - forge_mongo:/data/db
+    ports:
+      - "27017:27017"
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+
+  api:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      PORT: 5060
+      MONGO_URI: mongodb://mongo:27017/forge_pms
+      JWT_SECRET: ${JWT_SECRET:-forge-docker-dev-secret}
+      JWT_EXPIRES_IN: 7d
+      CLIENT_ORIGIN: ${CLIENT_ORIGIN:-http://localhost:5180}
+      UPLOAD_DIR: uploads
+      WORK_START_HOUR: 10
+      WORK_END_HOUR: 19
+      SEED_ON_START: ${SEED_ON_START:-true}
+    volumes:
+      - forge_uploads:/app/uploads
+    ports:
+      - "5060:5060"
+
+  web:
+    build:
+      context: ./frontend
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "5180:80"
+
+volumes:
+  forge_mongo:
+  forge_uploads:
