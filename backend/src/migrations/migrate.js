@@ -13,6 +13,7 @@ const migrations = [
   require('./008-create-notifications'),
   require('./009-create-activities'),
   require('./010-create-migration-meta'),
+  require('./011-task-keys-types'),
 ];
 
 async function ensureMeta(db) {

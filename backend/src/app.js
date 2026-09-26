@@ -17,6 +17,7 @@ app.use('/uploads', express.static(path.resolve(process.cwd(), uploadDir)));
 app.get('/api/health', (_req, res) => res.json({ ok: true, name: 'FORGE' }));
 
 app.use('/api/auth', require('./routes/auth'));
+app.use('/api/search', require('./routes/search'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/projects', require('./routes/projects'));
 app.use('/api/tasks', require('./routes/tasks'));

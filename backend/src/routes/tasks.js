@@ -6,7 +6,7 @@ const bugCtrl = require('../controllers/bugController');
 
 router.use(auth);
 router.get('/', taskCtrl.list);
-router.post('/', roles('admin', 'manager'), taskCtrl.create);
+router.post('/', taskCtrl.create);
 router.get('/:id', taskCtrl.getOne);
 router.patch('/:id', taskCtrl.update);
 router.patch('/:id/move', taskCtrl.move);

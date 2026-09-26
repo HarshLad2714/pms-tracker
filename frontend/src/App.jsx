@@ -11,6 +11,7 @@ import People from './pages/People';
 import Attendance from './pages/Attendance';
 import Reports from './pages/Reports';
 import Bugs from './pages/Bugs';
+import Profile from './pages/Profile';
 
 function Guard({ children, adminOnly }) {
   const { user, loading, isAdmin } = useAuth();
@@ -40,6 +41,7 @@ export default function App() {
         <Route path="bugs" element={<Bugs />} />
         <Route path="attendance" element={<Attendance />} />
         <Route path="reports" element={<Reports />} />
+        <Route path="profile" element={<Profile />} />
         <Route
           path="people"
           element={

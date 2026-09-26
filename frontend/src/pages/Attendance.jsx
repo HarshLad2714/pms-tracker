@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { format } from 'date-fns';
+import { addDays, endOfMonth, format, startOfMonth, startOfWeek } from 'date-fns';
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { hours } from '../lib/labels';
@@ -13,6 +13,7 @@ export default function Attendance() {
   const [from, setFrom] = useState(() => new Date(Date.now() - 6 * 86400000).toISOString().slice(0, 10));
   const [to, setTo] = useState(() => new Date().toISOString().slice(0, 10));
   const [flag, setFlag] = useState('');
+  const [view, setView] = useState('table');
 
   async function load() {
     const [{ data: t }, { data }] = await Promise.all([
@@ -96,11 +97,21 @@ export default function Attendance() {
           <p className="text-xs uppercase tracking-[0.25em] text-copper-400">Hours</p>
           <h1 className="font-display text-4xl">Attendance</h1>
         </div>
-        <button disabled={today?.clockOut} className={today?.clockIn && !today.clockOut ? 'btn-ghost' : 'btn-copper'} onClick={clock}>
-          {today?.clockOut ? 'Day sealed' : today ? 'Clock out' : 'Clock in'}
-        </button>
+        <div className="flex gap-2">
+          {['table', 'calendar'].map((v) => (
+            <button key={v} className={view === v ? 'btn-copper' : 'btn-ghost'} onClick={() => setView(v)}>
+              {v}
+            </button>
+          ))}
+          <button disabled={today?.clockOut} className={today?.clockIn && !today.clockOut ? 'btn-ghost' : 'btn-copper'} onClick={clock}>
+            {today?.clockOut ? 'Day sealed' : today ? 'Clock out' : 'Clock in'}
+          </button>
+        </div>
       </div>
 
+      {view === 'calendar' ? (
+        <AttendanceCalendar records={rows} />
+      ) : (
       <DataTable
         columns={columns}
         rows={rows}
@@ -120,6 +131,36 @@ export default function Attendance() {
           </>
         }
       />
+      )}
+    </div>
+  );
+}
+
+function AttendanceCalendar({ records }) {
+  const start = startOfWeek(startOfMonth(new Date()), { weekStartsOn: 1 });
+  const end = endOfMonth(new Date());
+  const days = [];
+  for (let d = start; d <= addDays(end, 6 - ((end.getDay() + 6) % 7)); d = addDays(d, 1)) days.push(d);
+  return (
+    <div className="grid grid-cols-7 gap-2">
+      {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d) => (
+        <p key={d} className="text-center text-[11px] uppercase tracking-wider text-paper-200/40">{d}</p>
+      ))}
+      {days.map((day) => {
+        const key = format(day, 'yyyy-MM-dd');
+        const items = records.filter((r) => r.date === key);
+        return (
+          <div key={key} className="min-h-24 rounded-xl border border-ink-600 bg-ink-950/40 p-2">
+            <p className="text-xs text-paper-200/40">{format(day, 'd')}</p>
+            {items.map((r) => (
+              <p key={r._id} className="mt-1 truncate text-[11px]">
+                {r.user?.name || 'You'} · {hours(r.totalMinutes)}
+                {r.isLate ? ' · late' : ''}
+              </p>
+            ))}
+          </div>
+        );
+      })}
     </div>
   );
 }

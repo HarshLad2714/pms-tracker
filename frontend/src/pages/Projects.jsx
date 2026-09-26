@@ -7,6 +7,7 @@ import { pretty, PROJECT_STATUS } from '../lib/labels';
 import Avatar from '../components/Avatar';
 import Modal from '../components/Modal';
 import DataTable from '../components/DataTable';
+import SearchSelect, { peopleOptions } from '../components/SearchSelect';
 
 export default function Projects() {
   const { isLead } = useAuth();
@@ -141,18 +142,13 @@ export function ProjectForm({ users, onClose, onSaved, initial }) {
             </option>
           ))}
         </select>
-        <select
-          multiple
-          className="field h-32"
+        <SearchSelect
+          options={peopleOptions(users)}
           value={form.members}
-          onChange={(e) => setForm({ ...form, members: [...e.target.selectedOptions].map((o) => o.value) })}
-        >
-          {users.map((u) => (
-            <option key={u._id} value={u._id}>
-              {u.name} · {u.role}
-            </option>
-          ))}
-        </select>
+          onChange={(members) => setForm({ ...form, members })}
+          placeholder="Add members"
+          searchPlaceholder="Search members…"
+        />
         {error && <p className="text-sm text-ember">{error}</p>}
         <button className="btn-copper w-full">Save</button>
       </form>

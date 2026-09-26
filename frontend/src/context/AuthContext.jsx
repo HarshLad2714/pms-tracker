@@ -35,6 +35,7 @@ export function AuthProvider({ children }) {
         setUser(data.user);
         return data.user;
       },
+      setUser,
       logout() {
         localStorage.removeItem('forge_token');
         setUser(null);

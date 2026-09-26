@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 const PRIORITIES = ['low', 'medium', 'high', 'urgent'];
 const STATUSES = ['todo', 'in_progress', 'in_review', 'qa', 'done'];
+const TYPES = ['task', 'bug', 'story'];
 
 const attachmentSchema = new mongoose.Schema(
   {
@@ -16,10 +17,14 @@ const attachmentSchema = new mongoose.Schema(
 
 const taskSchema = new mongoose.Schema(
   {
+    key: { type: String, unique: true, sparse: true },
+    type: { type: String, enum: TYPES, default: 'task' },
+    parent: { type: mongoose.Schema.Types.ObjectId, ref: 'Task' },
     project: { type: mongoose.Schema.Types.ObjectId, ref: 'Project', required: true },
     title: { type: String, required: true, trim: true },
     description: { type: String, default: '' },
     assignees: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    watchers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     priority: { type: String, enum: PRIORITIES, default: 'medium' },
     status: { type: String, enum: STATUSES, default: 'todo' },
     startDate: { type: Date },
@@ -37,7 +42,10 @@ taskSchema.index({ project: 1, status: 1, position: 1 });
 taskSchema.index({ assignees: 1 });
 taskSchema.index({ dueDate: 1 });
 taskSchema.index({ tags: 1 });
+taskSchema.index({ key: 1 });
+taskSchema.index({ parent: 1 });
 
 module.exports = mongoose.model('Task', taskSchema);
 module.exports.PRIORITIES = PRIORITIES;
 module.exports.STATUSES = STATUSES;
+module.exports.TYPES = TYPES;

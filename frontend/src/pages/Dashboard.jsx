@@ -44,7 +44,7 @@ export default function Dashboard() {
     <div className="space-y-8">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-xs uppercase tracking-[0.25em] text-copper-400">Studio</p>
+          <p className="text-xs uppercase tracking-[0.25em] text-copper-400">Your work</p>
           <h1 className="font-display text-4xl md:text-5xl">Good forge, {user.name.split(' ')[0]}.</h1>
         </div>
         <button disabled={busy || data.me.attendance?.clockOut} className={clocked ? 'btn-ghost' : 'btn-copper'} onClick={toggleClock}>

@@ -22,6 +22,11 @@ export const SEVERITY = {
 
 export const BUG_STATUS = ['open', 'in_progress', 'fixed', 'reopened', 'closed'];
 export const PROJECT_STATUS = ['active', 'on_hold', 'completed', 'archived'];
+export const TYPES = {
+  task: { label: 'Task', mark: 'T', className: 'bg-brass/20 text-brass' },
+  bug: { label: 'Bug', mark: 'B', className: 'bg-ember/20 text-ember' },
+  story: { label: 'Story', mark: 'S', className: 'bg-copper-500/20 text-copper-400' },
+};
 
 export function pretty(value) {
   return String(value || '').replace(/_/g, ' ');

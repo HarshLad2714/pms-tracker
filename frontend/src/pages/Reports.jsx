@@ -110,11 +110,25 @@ export default function Reports() {
           searchPlaceholder="Search group or hours…"
           filename={`time-${range}`}
           filters={
-            <select className="field w-36" value={range} onChange={(e) => setRange(e.target.value)}>
-              <option value="daily">daily</option>
-              <option value="weekly">weekly</option>
-              <option value="monthly">monthly</option>
-            </select>
+            <>
+              <select className="field w-36" value={range} onChange={(e) => setRange(e.target.value)}>
+                <option value="daily">daily</option>
+                <option value="weekly">weekly</option>
+                <option value="monthly">monthly</option>
+              </select>
+              <select
+                className="field w-36"
+                defaultValue="task"
+                onChange={async (e) => {
+                  const { data } = await api.get(`/reports/time?range=${range}&group=${e.target.value}`);
+                  setTimeRows(data.rows);
+                }}
+              >
+                <option value="task">by task</option>
+                <option value="user">by person</option>
+                <option value="project">by project</option>
+              </select>
+            </>
           }
         />
       )}

@@ -3,6 +3,7 @@ const Bug = require('../models/Bug');
 const Comment = require('../models/Comment');
 const Activity = require('../models/Activity');
 const TimeEntry = require('../models/TimeEntry');
+const Counter = require('../models/Counter');
 const { asyncHandler } = require('../utils/asyncHandler');
 const { ApiError } = require('../utils/ApiError');
 const { logActivity } = require('../utils/activity');
@@ -10,22 +11,32 @@ const { notify } = require('../utils/notify');
 
 const POPULATE = [
   { path: 'assignees', select: 'name email avatar role designation' },
+  { path: 'watchers', select: 'name email avatar' },
   { path: 'createdBy', select: 'name email avatar' },
   { path: 'project', select: 'name status members' },
+  { path: 'parent', select: 'title key type' },
 ];
+
+async function nextKey() {
+  const seq = await Counter.next('task');
+  return `FRG-${seq}`;
+}
 
 function canSeeAll(user) {
   return user.role === 'admin' || user.role === 'manager';
 }
 
 exports.list = asyncHandler(async (req, res) => {
-  const { project, assignee, status, priority, tag, q, mine } = req.query;
+  const { project, assignee, status, priority, tag, q, mine, type, parent, calendar } = req.query;
   const filter = {};
   if (project) filter.project = project;
   if (status) filter.status = status;
   if (priority) filter.priority = priority;
   if (tag) filter.tags = tag;
-  if (q) filter.title = new RegExp(q, 'i');
+  if (type) filter.type = type;
+  if (parent) filter.parent = parent;
+  if (q) filter.$or = [{ title: new RegExp(q, 'i') }, { key: new RegExp(q, 'i') }];
+  if (calendar === 'true') filter.dueDate = { $exists: true, $ne: null };
 
   if (mine === 'true' || (!canSeeAll(req.user) && !assignee)) {
     filter.assignees = req.user._id;
@@ -59,15 +70,19 @@ exports.list = asyncHandler(async (req, res) => {
 });
 
 exports.create = asyncHandler(async (req, res) => {
-  const { project, title, description, assignees, priority, status, startDate, dueDate, tags, estimatedMinutes, attachments } = req.body;
+  const { project, title, description, assignees, priority, status, startDate, dueDate, tags, estimatedMinutes, attachments, type, parent, watchers } = req.body;
   if (!project || !title) throw new ApiError(400, 'Project and title are required');
 
   const last = await Task.findOne({ project, status: status || 'todo' }).sort({ position: -1 });
   const task = await Task.create({
+    key: await nextKey(),
+    type: type || 'task',
+    parent: parent || undefined,
     project,
     title,
     description,
     assignees: assignees || [],
+    watchers: watchers || [req.user._id],
     priority: priority || 'medium',
     status: status || 'todo',
     startDate,
@@ -99,7 +114,10 @@ exports.create = asyncHandler(async (req, res) => {
 });
 
 exports.getOne = asyncHandler(async (req, res) => {
-  const task = await Task.findById(req.params.id).populate(POPULATE);
+  const id = req.params.id;
+  const task = /^FRG-/i.test(id)
+    ? await Task.findOne({ key: id.toUpperCase() }).populate(POPULATE)
+    : await Task.findById(id).populate(POPULATE);
   if (!task) throw new ApiError(404, 'Task not found');
 
   const [bugs, comments, activities, timeEntries] = await Promise.all([
@@ -109,8 +127,9 @@ exports.getOne = asyncHandler(async (req, res) => {
     TimeEntry.find({ task: task._id }).populate('user', 'name email avatar').sort({ startTime: -1 }),
   ]);
   const loggedMinutes = timeEntries.filter((e) => !e.isRunning).reduce((s, e) => s + e.durationMinutes, 0);
+  const subtasks = await Task.find({ parent: task._id }).populate('assignees', 'name email avatar').sort({ position: 1 });
 
-  res.json({ task, bugs, comments, activities, timeEntries, loggedMinutes });
+  res.json({ task, bugs, comments, activities, timeEntries, loggedMinutes, subtasks });
 });
 
 function assertAssignee(user, task) {
@@ -125,7 +144,7 @@ exports.update = asyncHandler(async (req, res) => {
   assertAssignee(req.user, task);
 
   const prevAssignees = task.assignees.map(String);
-  const fields = ['title', 'description', 'assignees', 'priority', 'status', 'startDate', 'dueDate', 'tags', 'estimatedMinutes', 'attachments', 'position'];
+  const fields = ['title', 'description', 'assignees', 'watchers', 'priority', 'status', 'startDate', 'dueDate', 'tags', 'estimatedMinutes', 'attachments', 'position', 'type', 'parent'];
   const changes = [];
   fields.forEach((f) => {
     if (req.body[f] !== undefined) {

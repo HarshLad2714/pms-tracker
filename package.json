@@ -5,5 +5,19 @@
     "dev": "npm run dev --prefix backend & npm run dev --prefix frontend",
     "migrate": "npm run migrate --prefix backend",
     "seed": "npm run seed --prefix backend"
+  },
+  "dependencies": {
+    "@tiptap/extension-image": "^2.27.3",
+    "@tiptap/extension-link": "^2.27.3",
+    "@tiptap/extension-placeholder": "^2.27.3",
+    "@tiptap/extension-table": "^2.27.3",
+    "@tiptap/extension-table-cell": "^2.27.3",
+    "@tiptap/extension-table-header": "^2.27.3",
+    "@tiptap/extension-table-row": "^2.27.3",
+    "@tiptap/extension-underline": "^2.27.3",
+    "@tiptap/pm": "^2.27.3",
+    "@tiptap/react": "^2.27.3",
+    "@tiptap/starter-kit": "^2.27.3",
+    "isomorphic-dompurify": "^4.4.0"
   }
 }

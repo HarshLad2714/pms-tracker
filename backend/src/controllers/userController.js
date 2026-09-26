@@ -29,6 +29,23 @@ exports.create = asyncHandler(async (req, res) => {
   res.status(201).json({ user: user.toSafeJSON() });
 });
 
+exports.updateMe = asyncHandler(async (req, res) => {
+  const { name, department, designation, avatar, password, currentPassword } = req.body;
+  const user = await User.findById(req.user._id).select('+password');
+  if (name !== undefined) user.name = name;
+  if (department !== undefined) user.department = department;
+  if (designation !== undefined) user.designation = designation;
+  if (avatar !== undefined) user.avatar = avatar;
+  if (password) {
+    if (!currentPassword) throw new ApiError(400, 'Current password is required');
+    const ok = await user.comparePassword(currentPassword);
+    if (!ok) throw new ApiError(400, 'Current password is incorrect');
+    user.password = password;
+  }
+  await user.save();
+  res.json({ user: user.toSafeJSON() });
+});
+
 exports.getOne = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id);
   if (!user) throw new ApiError(404, 'User not found');
